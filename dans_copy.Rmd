@@ -177,6 +177,17 @@ ggplot(tmp, aes(metric, value, col = metric)) +
   geom_boxplot()
 ```
 
+```{r}
+sens_P_maxsize = sensitivity::tell(sens_P,allres$maxsize)
+
+sens_P_meansize = sensitivity::tell(sens_P,allres$meansize)
+
+sens_P_maxsize
+
+sens_P_meansize
+```
+
+
 
 Graph the results of the sensitivity analysis as a box plot of maximum forest size and a plot of the two Sobol indices (S and T). (25% - correct implementation of Sobol and good graphing style -label etc )
 
