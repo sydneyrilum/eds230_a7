@@ -190,9 +190,59 @@ sens_P_maxsize = sensitivity::tell(sens_P,allres$maxsize)
 
 sens_P_meansize = sensitivity::tell(sens_P,allres$meansize)
 
-sens_P_maxsize
+sens_P_maxsize$S
+sens_P_maxsize$T
 
-sens_P_meansize
+sens_max_s = as.data.frame(sens_P_maxsize$S) %>% rowid_to_column(var = "parms")
+
+sens_max_s[1,1] <- "r"
+sens_max_s[2,1] <- "K"
+sens_max_s[3,1] <- "g"
+
+
+sens_max_t = as.data.frame(sens_P_maxsize$T) %>% rowid_to_column(var = "parms")
+
+sens_max_t[1,1] <- "r"
+sens_max_t[2,1] <- "K"
+sens_max_t[3,1] <- "g"
+
+
+sens_mean_s = as.data.frame(sens_P_meansize$S) %>% rowid_to_column(var = "parms")
+
+sens_mean_s[1,1] <- "r"
+sens_mean_s[2,1] <- "K"
+sens_mean_s[3,1] <- "g"
+
+
+sens_mean_t = as.data.frame(sens_P_meansize$T) %>% rowid_to_column(var = "parms")
+
+sens_mean_t[1,1] <- "r"
+sens_mean_t[2,1] <- "K"
+sens_mean_t[3,1] <- "g"
+
+
+
+ggplot(sens_max_s, aes(x = original, y = parms, fill = parms)) +
+  geom_col() +
+  labs(title = "First Order Sensitivity Index for Maximum Forest Size", y = "Parameters", x = "Sobel Sensitivity")
+
+
+ggplot(sens_max_t, aes(x = original, y = parms, fill = parms)) +
+  geom_col() +
+  labs(title = "Total Effect for Maximum Forest Size", y = "Parameters", x = "Sobel Sensitivity")
+
+
+
+ggplot(sens_mean_s, aes(x = original, y = parms, fill = parms)) +
+  geom_col() +
+  labs(title = "First Order Sensitivity Index for Mean Forest Size", y = "Parameters", x = "Sobel Sensitivity")
+
+
+ggplot(sens_mean_t, aes(x = original, y = parms, fill = parms)) +
+  geom_col() +
+  labs(title = "Total Effect for Mean Forest Size", y = "Parameters", x = "Sobel Sensitivity")
+
+
 ```
 
 In 2-3 sentences, discuss what the results of your simulation might mean for climate change impacts on forest growth (e.g think about what parameters climate change might influence ). (25% - wee look for reasonable discussion that uses the results from your analysis and give extra points for discussions that offer particularly creative or insightful commentary)
