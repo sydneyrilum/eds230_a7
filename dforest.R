@@ -1,16 +1,18 @@
 #' Forest Growth Model
 #' 
-#' @param C  size of forest (units: kg Carbon)
+#' This function computes forest growth in kg of carbon.
+#' 
+#' @param C size of forest (units: kg Carbon)
 #' @param cct canopy closure threshold (units: kg Carbon)
 #' @param parameters list of parameters, including: r, g, K
-#' @param parameters$r early exponential growth rate
-#' @parms parameters$g linear growth rate once canopy closure has been reached
+#' @param parameters$r early exponential growth rate (units: kg C/year)
+#' @parms parameters$g linear growth rate once canopy closure has been reached (units: kg C/year)
 #' @parms parameters$K carrying capacity (units: kg Carbon)
 #' @return change in forest growth
-#'
+
 dforest = function(time, C, cct, parameters) {
   
-  # depending on canopy closure threshold, use one of the following forest growth functions
+  # depending on canopy closure threshold (cct), use one of the following forest growth functions:
   if (C < cct) {
     dgrowth = parameters$r * C
   }
