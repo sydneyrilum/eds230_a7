@@ -17,9 +17,9 @@ library(sensitivity)
 
 Consider the following model of forest growth (where forest size in measured in units of carbon (C))
 
-- dC/dt=r∗C for forests where C is below a threshold canopy closure
+- dC/dt=r*C for forests where C is below a threshold canopy closure
 
-- dC/dt=g∗(1−C/K) for forests where carbon is at or above the threshold canopy closure
+- dC/dt=g*(1-C/K) for forests where carbon is at or above the threshold canopy closure
 
 - and K is a carrying capacity in units of carbon
 
