@@ -1,8 +1,10 @@
 ---
-title: "EDS230: Assignment 7"
+title: 'EDS230: Assignment 7'
 author: "Allie Cole, Daniel Kerstan, and Sydney Rilum"
 date: "5/12/2022"
-output: html_document
+output:
+  pdf_document: default
+  pdf: default
 ---
 
 ```{r setup, include=FALSE}
@@ -28,7 +30,6 @@ You could think of the canopy closure threshold as the size of the forest at whi
 You can think of r, as early exponential growth rate and g as the linear growth rate once canopy closure has been reached
 
 ## 1. Implement this model in R (as a differential equation) 
-(Grading 25% - we will look for correct implementation but also good programming style - meaningful variable names, comments/documentation throughout)
 
 ```{r}
 # source function
@@ -49,18 +50,19 @@ Starting with an initial forest size of 10 kg/C, and using the following paramet
 r = 0.01
 K = 250
 g = 2
-
 cct = 50
+
 C = 10
 
 # gets results for 300 years (evaluating every year)
 nyears = seq(from = 1, to = 300)
 parameters = list(r = r,
                   K = K,
-                  g = g)
+                  g = g,
+                  cct = cct)
 
 # use ODE solver to run forest growth function
-results = ode(y = C, times = nyears, func = dforest, cct = cct, parms = parameters) 
+results = ode(y = C, times = nyears, func = dforest, parms = parameters) 
 
 colnames(results) = c("year", "C")
 
@@ -80,7 +82,7 @@ ggplot(results, aes(year, C)) +
 
 ## 3. Run a Sobol sensitivity analysis 
 
-Run a Sobol sensitivity analysis that explores how the estimated maximum and mean forest size (e.g maximum and mean values of C over the 300 years) varies with the pre canopy closure growth rate (r) and post-canopy closure growth rate (g) and canopy closure threshold and carrying capacity (K).
+Run a Sobol sensitivity analysis that explores how the estimated maximum and mean forest size (e.g maximum and mean values of C over the 300 years) varies with the pre canopy closure growth rate (r) and post-canopy closure growth rate (g) and canopy closure threshold (cct) and carrying capacity (K).
 
 Assume that parameters are all normally distributed with means as given above and standard deviation of 10% of mean value.
 
@@ -90,23 +92,25 @@ nyears = 300
 r = rnorm(mean = 0.01, sd = 0.01*0.1, n = nyears)
 K = rnorm(mean = 250, sd = 250*0.1, n = nyears)
 g = rnorm(mean = 2, sd = 2*0.1, n = nyears)
+cct = rnorm(mean = 50, sd = 50*0.1, n = nyears)
 
 # bind parameters to data frame
-X1 = cbind.data.frame(r = r, K = K, g = g)
+X1 = cbind.data.frame(r = r, K = K, g = g, cct = cct)
 
 # repeat for second random sample
 r = rnorm(mean = 0.01, sd = 0.01*0.1, n = nyears)
 K = rnorm(mean = 250, sd = 250*0.1, n = nyears)
 g = rnorm(mean = 2, sd = 2*0.1, n = nyears)
+cct = rnorm(mean = 50, sd = 50*0.1, n = nyears)
 
 # bind parameters to data frame
-X2 = cbind.data.frame(r = r, K = K, g = g)
+X2 = cbind.data.frame(r = r, K = K, g = g, cct = cct)
 
 # create sobel object and get sets of parameters for running the model
 sens_P = sobolSalt(model = NULL, X1, X2, nboot = 300)
 
 # add column names 
-colnames(sens_P$X) = c("r","K","g")
+colnames(sens_P$X) = c("r","K","g","cct")
 
 # our parameter sets are
 head(sens_P$X)
@@ -127,10 +131,11 @@ C = 10
 nyears = seq(from = 1, to = 300)
 parmaters = list(r=sens_P$X[1,"r"], 
                  K = sens_P$X[1,"K"],
-                 g = sens_P$X[1,"g"])
+                 g = sens_P$X[1,"g"],
+                 cct = sens_P$X[1,"cct"])
 
 # use ODE solver to run function for varying parameters over 300 years
-result = ode(y= C, times = nyears, func = dforest, cct = cct, parms = parameters)
+result = ode(y= C, times = nyears, func = dforest, parms = parameters)
 
 # check results
 head(result)
@@ -147,7 +152,7 @@ ggplot(result, aes(time, C)) +
        title = "Forest Growth Model")
 ```
 
-Graph the results of the sensitivity analysis as a box plot of maximum forest size and a plot of the two Sobol indices (S and T). (25% - correct implementation of Sobol and good graphing style -label etc )
+Graph the results of the sensitivity analysis as a box plot of maximum forest size and a plot of the two Sobol indices (S and T).
 
 ```{r}
 maxsize = max(result$C)
@@ -165,15 +170,15 @@ return(list(maxsize=maxsize, meansize=meansize))}
 compute_metrics(result)
 
 p_wrapper = function(r, K, g, C, nyears, dforest, cct) {
-    parms = list(r=r, K=K, g=g)
-    result = ode(y= C, times = nyears, func = dforest, cct = cct, parms = parms)
+    parms = list(r=r, K=K, g=g, cct=cct)
+    result = ode(y= C, times = nyears, func = dforest, parms = parms)
     colnames(result)=c("time","C")
   # get metrics
   metrics=compute_metrics(as.data.frame(result))
   return(metrics)
 }
 
-allresults <- as.data.frame(sens_P$X) %>% pmap(p_wrapper, C = C, nyears=nyears, dforest=dforest, cct=cct)
+allresults <- as.data.frame(sens_P$X) %>% pmap(p_wrapper, C = C, nyears=nyears, dforest=dforest)
 
 allres <- allresults %>% map_dfr(`[`, c("maxsize", "meansize"))
 
@@ -198,6 +203,7 @@ sens_max_s = as.data.frame(sens_P_maxsize$S) %>% rowid_to_column(var = "parms")
 sens_max_s[1,1] <- "r"
 sens_max_s[2,1] <- "K"
 sens_max_s[3,1] <- "g"
+sens_max_s[4,1] <- "cct"
 
 
 sens_max_t = as.data.frame(sens_P_maxsize$T) %>% rowid_to_column(var = "parms")
@@ -205,6 +211,7 @@ sens_max_t = as.data.frame(sens_P_maxsize$T) %>% rowid_to_column(var = "parms")
 sens_max_t[1,1] <- "r"
 sens_max_t[2,1] <- "K"
 sens_max_t[3,1] <- "g"
+sens_max_t[4,1] <- "cct"
 
 
 sens_mean_s = as.data.frame(sens_P_meansize$S) %>% rowid_to_column(var = "parms")
@@ -212,6 +219,7 @@ sens_mean_s = as.data.frame(sens_P_meansize$S) %>% rowid_to_column(var = "parms"
 sens_mean_s[1,1] <- "r"
 sens_mean_s[2,1] <- "K"
 sens_mean_s[3,1] <- "g"
+sens_mean_s[4,1] <- "cct"
 
 
 sens_mean_t = as.data.frame(sens_P_meansize$T) %>% rowid_to_column(var = "parms")
@@ -219,7 +227,7 @@ sens_mean_t = as.data.frame(sens_P_meansize$T) %>% rowid_to_column(var = "parms"
 sens_mean_t[1,1] <- "r"
 sens_mean_t[2,1] <- "K"
 sens_mean_t[3,1] <- "g"
-
+sens_mean_t[4,1] <- "cct"
 
 
 ggplot(sens_max_s, aes(x = original, y = parms, fill = parms)) +
@@ -246,19 +254,8 @@ ggplot(sens_mean_t, aes(x = original, y = parms, fill = parms)) +
 ```
 
 ## Discussion
-In 2-3 sentences, discuss what the results of your simulation might mean for climate change impacts on forest growth (e.g think about what parameters climate change might influence ). (25% - wee look for reasonable discussion that uses the results from your analysis and give extra points for discussions that offer particularly creative or insightful commentary)
+In 2-3 sentences, discuss what the results of your simulation might mean for climate change impacts on forest growth (e.g think about what parameters climate change might influence ).
+
+Our simulation results indicate that the parameters r (pre-canopy closure growth rate) and K (carrying capacity) have the largest sensitivity to change maximum forest size estimates over 300 years. Pre-canopy closure growth rate (r) appears to have a largest impact on mean forest size, compared to the other parameters. Climate change is likely to influence canopy growth rate parameters most because as global temperatures increase, the tree canopy growth rate will likely change (dependent on the species).
 
 
-Our simulation results indicate that the parameter r (pre-canopy closure growth rate) has the largest effect on maximum and mean forest size estimates over 300 years. Post-canopy closure growth rate (g) and carrying capacity (K) have a very small impact on the model for mean forest size, while variation in pre-canopy closure growth rate (r) appears to have a large impact on mean forest size. 
-
-Climate change is likely to influence canopy growth rate parameters most because as global temperatures increase, tree canopy cover will be experience a buffering effect.
-
-#### this is from a paper (https://onlinelibrary.wiley.com/doi/10.1111/gcb.15946)
-Increased canopy cover is projected to buffer an otherwise significant decreasing response of cold-adapted species to climate change. However, increasing canopy cover is not projected to buffer the predicted negative impact of climate change on shade-adapted forest specialists.
-
-
-
-
-Submit R markdown with model implementation, graphs and sensitivity analysis and R file with your model
-
-(Final 10% for well organized clear R markdown)
