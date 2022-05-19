@@ -245,10 +245,16 @@ ggplot(sens_mean_t, aes(x = original, y = parms, fill = parms)) +
 
 ```
 
+## Discussion
 In 2-3 sentences, discuss what the results of your simulation might mean for climate change impacts on forest growth (e.g think about what parameters climate change might influence ). (25% - wee look for reasonable discussion that uses the results from your analysis and give extra points for discussions that offer particularly creative or insightful commentary)
 
 
+Our simulation results indicate that the parameter r (pre-canopy closure growth rate) has the largest effect on maximum and mean forest size estimates over 300 years. Post-canopy closure growth rate (g) and carrying capacity (K) have a very small impact on the model for mean forest size, while variation in pre-canopy closure growth rate (r) appears to have a large impact on mean forest size. 
 
+Climate change is likely to influence canopy growth rate parameters most because as global temperatures increase, tree canopy cover will be experience a buffering effect.
+
+#### this is from a paper (https://onlinelibrary.wiley.com/doi/10.1111/gcb.15946)
+Increased canopy cover is projected to buffer an otherwise significant decreasing response of cold-adapted species to climate change. However, increasing canopy cover is not projected to buffer the predicted negative impact of climate change on shade-adapted forest specialists.
 
 
 
